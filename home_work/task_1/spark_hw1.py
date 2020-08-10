@@ -3,22 +3,14 @@
 # HW 3
 # E.Chumbaeva
 # 2020-08-10
-#  
+# https://github.com/HaykInanc/hackeru_spark/pull/2
 from pyspark import SparkContext, SparkConf
+import io
 
 if __name__ == "__main__":
-    conf = SparkConf().setAppName("word count").setMaster("local[3]")
-    sc = SparkContext(conf = conf)
-    
-    lines = sc.textFile("../in/word_count.text")
-    
-    words = lines.flatMap(lambda line: line.split(" ")) \
-    			.filter(lambda val: len(val)>5)
-    
-    wordCounts = words.countByValue()
-    
-    for word, count in wordCounts.items():
-        print("{} : {}".format(word, count))
+
+	def getResultLine(address, count):
+		return ' : '.join(address, count)
 
 
 
@@ -32,9 +24,18 @@ if __name__ == "__main__":
 	aggregateLogs = julyLogs.union(augustLogs)
 	aggregateLogs = aggregateLogs.filter(lambda line: not line.startswith('host')) # Убираем заголовки
 
-	addresses = lines.flatMap(lambda line: line_split("\t"))
+	print('*' * 20)
 
+	addresses = aggregateLogs.map(lambda line: line.split("\t")[0])
 	addressesCounts = addresses.countByValue()
 
+	f = open('spark_hw1.text', 'w', encoding='utf-8')
 	for address, count in addressesCounts.items():
-		print("{} : {}".format(word, count))
+		f.write("{} : {}\n".format(address, count))
+	f.close()
+
+
+	#addressesCounts = addressesCounts.map(getResultLine(addressesCounts.items()))
+	#addressesCounts.saveAsTextFile('../../out/spark_hw1.text')
+
+	print('*' * 20)
